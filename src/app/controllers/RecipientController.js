@@ -68,7 +68,7 @@ class RecipientController {
     const recipient = await Recipient.findByPk(req.params.id);
 
     if (!recipient) {
-      return res.status(401).json({ error: 'Recipient not found' });
+      return res.status(400).json({ error: 'Recipient not found' });
     }
 
     if (name && name != recipient.name) {
@@ -101,6 +101,46 @@ class RecipientController {
       city,
       zip_code,
     });
+  }
+
+  async index(req, res) {
+    const recipients = await Recipient.findAll({
+      attributes: [
+        'id',
+        'name',
+        'address_street',
+        'address_number',
+        'address_complement',
+        'state',
+        'city',
+        'zip_code',
+      ],
+    });
+
+    return res.json(recipients);
+  }
+
+  async show(req, res) {
+    const { id } = req.params;
+
+    const recipient = await Recipient.findByPk(id, {
+      attributes: [
+        'id',
+        'name',
+        'address_street',
+        'address_number',
+        'address_complement',
+        'state',
+        'city',
+        'zip_code',
+      ],
+    });
+
+    if (!recipient) {
+      return res.status(400).json({ error: 'Recipient not found' });
+    }
+
+    return res.json(recipient);
   }
 }
 
