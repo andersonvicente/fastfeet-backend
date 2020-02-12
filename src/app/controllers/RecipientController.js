@@ -71,7 +71,7 @@ class RecipientController {
       return res.status(400).json({ error: 'Recipient not found' });
     }
 
-    if (name && name != recipient.name) {
+    if (name && name !== recipient.name) {
       const recipientExists = await Recipient.findOne({
         where: { name },
       });
