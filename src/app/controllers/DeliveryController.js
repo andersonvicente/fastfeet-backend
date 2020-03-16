@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { parseISO, getHours } from 'date-fns';
+import { Op } from 'sequelize';
 import Delivery from '../models/Delivery';
 import File from '../models/File';
 import Recipient from '../models/Recipient';
@@ -10,7 +11,12 @@ import Queue from '../../lib/Queue';
 
 class DeliveryController {
   async index(req, res) {
+    const { q } = req.query;
+
+    const where = q ? { product: { [Op.iLike]: `%${q}%` } } : null;
+
     const deliveries = await Delivery.findAll({
+      where,
       attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
       include: [
         {
