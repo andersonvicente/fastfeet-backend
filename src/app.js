@@ -24,8 +24,13 @@ class App {
   }
 
   middlewares() {
+    const corsOptions = {
+      origin: '*',
+      optionsSuccessStatus: 200,
+    };
+
     this.server.use(Sentry.Handlers.requestHandler());
-    this.server.use(cors());
+    this.server.use(cors(corsOptions));
     this.server.use(express.json());
     this.server.use(
       '/files',

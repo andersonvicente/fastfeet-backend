@@ -7,7 +7,7 @@ class DeliveredController {
     const { deliverymanId } = req.params;
 
     const deliveries = await Delivery.findAll({
-      attributes: ['id', 'product', 'start_date', 'end_date'],
+      attributes: ['id', 'product', 'created_at', 'start_date', 'end_date'],
       where: {
         deliveryman_id: deliverymanId,
         end_date: {
