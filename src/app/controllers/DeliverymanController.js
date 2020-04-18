@@ -10,7 +10,7 @@ class DeliverymanController {
     const where = q ? { name: { [Op.iLike]: `%${q}%` } } : null;
 
     const deliverymen = await Deliveryman.findAll({
-      where,
+      where: { removed_at: null },
       attributes: ['id', 'name', 'email', 'removed_at'],
       include: [
         {
