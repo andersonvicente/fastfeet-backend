@@ -33,7 +33,7 @@ class DeliverymanController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const deliverymanExists = await Deliveryman.findOne({
@@ -41,7 +41,7 @@ class DeliverymanController {
     });
 
     if (deliverymanExists) {
-      return res.status(400).json({ error: 'Deliveryman already exists' });
+      return res.status(400).json({ error: 'Já existe um entregador com este e-mail' });
     }
 
     const { id, name, email } = await Deliveryman.create(req.body);
@@ -68,7 +68,7 @@ class DeliverymanController {
     });
 
     if (!deliverymen) {
-      return res.status(400).json({ error: 'Deliveryman not exists' });
+      return res.status(400).json({ error: 'Entregador não localizado' });
     }
 
     return res.json(deliverymen);
@@ -82,7 +82,7 @@ class DeliverymanController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const { id } = req.params;
@@ -96,7 +96,7 @@ class DeliverymanController {
       });
 
       if (deliverymanExists) {
-        return res.status(400).json({ error: 'Deliveryman already exists' });
+        return res.status(400).json({ error: 'Já existe um outro entregador com este e-mail' });
       }
     }
 
@@ -116,7 +116,7 @@ class DeliverymanController {
     });
 
     if (deliveryman.removed_at) {
-      return res.status(401).json({ error: 'Deliveryman is already removed' });
+      return res.status(401).json({ error: 'Este entregador já foi excluído' });
     }
 
     deliveryman.removed_at = new Date();

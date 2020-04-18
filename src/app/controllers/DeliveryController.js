@@ -64,7 +64,7 @@ class DeliveryController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const { id } = await Delivery.create(req.body);
@@ -115,7 +115,7 @@ class DeliveryController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const { id } = req.params;
@@ -127,7 +127,7 @@ class DeliveryController {
       const fileExists = await File.findByPk(signature_id);
 
       if (!fileExists) {
-        return res.status(401).json({ error: 'File not found' });
+        return res.status(401).json({ error: 'Arquivo não encontrado' });
       }
     }
 
@@ -140,7 +140,7 @@ class DeliveryController {
       ) {
         return res
           .status(401)
-          .json({ error: 'Start date must be between 8 hours and 18 hours' });
+          .json({ error: 'A retirada deve ser entre 8 e 18 horas' });
       }
     }
 
@@ -183,19 +183,19 @@ class DeliveryController {
     });
 
     if (delivery.canceled_at) {
-      return res.status(401).json({ error: 'Delivery is already canceled' });
+      return res.status(401).json({ error: 'Essa encomenda já foi cancelada' });
     }
 
     if (delivery.start_date) {
       return res.status(401).json({
-        error: 'Delivery has already been picked up by the deliveryman',
+        error: 'Essa encomenda já foi retirada pelo entregador',
       });
     }
 
     if (delivery.end_date) {
       return res
         .status(401)
-        .json({ error: 'Delivery has already been delivered' });
+        .json({ error: 'Essa encomenda já foi entregue' });
     }
 
     delivery.canceled_at = new Date();

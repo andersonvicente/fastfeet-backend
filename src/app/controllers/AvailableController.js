@@ -44,7 +44,7 @@ class AvailableController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const { deliverymanId, deliveryId } = req.params;
@@ -53,7 +53,7 @@ class AvailableController {
     const delivery = await Delivery.findByPk(deliveryId);
 
     if (!delivery) {
-      return res.status(401).json({ error: 'Delivery not exists' });
+      return res.status(401).json({ error: 'Encomenda não encontrada' });
     }
 
     if (start_date) {
@@ -62,7 +62,7 @@ class AvailableController {
       if (!(getHours(parsedDate) >= 8 && getHours(parsedDate) <= 18)) {
         return res
           .status(401)
-          .json({ error: 'Start date must be between 8 hours and 18 hours' });
+          .json({ error: 'A retirada deve ser entre 8 e 18 horas' });
       }
 
       const withdraws = await Delivery.findAll({
@@ -77,7 +77,7 @@ class AvailableController {
       if (withdraws && withdraws.length > 5) {
         return res
           .status(401)
-          .json({ error: 'It exceeded the maximun of 5 withdrawals' });
+          .json({ error: 'Já excedeu o número máximo de 5 retiradas' });
       }
     }
 
@@ -85,7 +85,7 @@ class AvailableController {
       const fileExists = await File.findByPk(signature_id);
 
       if (!fileExists) {
-        return res.status(401).json({ error: 'File not found' });
+        return res.status(401).json({ error: 'Arquivo não encontrado' });
       }
     }
 

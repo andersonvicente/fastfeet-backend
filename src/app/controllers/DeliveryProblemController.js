@@ -49,7 +49,7 @@ class DeliveryProblemController {
     const delivery = await Delivery.findByPk(deliveryId);
 
     if (!delivery) {
-      return res.status(401).json({ error: 'Delivery not exists' });
+      return res.status(401).json({ error: 'Encomenda não existe' });
     }
 
     const schema = Yup.object().shape({
@@ -57,7 +57,7 @@ class DeliveryProblemController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     req.body.delivery_id = deliveryId;
@@ -109,11 +109,11 @@ class DeliveryProblemController {
     });
 
     if (!deliveryProblem) {
-      return res.status(401).json({ error: 'Problem not found' });
+      return res.status(401).json({ error: 'Problema não encontrado' });
     }
 
     if (deliveryProblem.delivery.canceled_at) {
-      return res.status(401).json({ error: 'Delivery is already canceled' });
+      return res.status(401).json({ error: 'Essa encomenda já está cancelada' });
     }
 
     deliveryProblem.delivery.canceled_at = new Date();

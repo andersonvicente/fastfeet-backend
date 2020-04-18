@@ -15,7 +15,7 @@ class RecipientController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const userExists = await Recipient.findOne({
@@ -23,7 +23,7 @@ class RecipientController {
     });
 
     if (userExists) {
-      return res.status(400).json({ error: 'Recipient already exists' });
+      return res.status(400).json({ error: 'Já existe um destinatário com esse nome' });
     }
 
     const {
@@ -61,7 +61,7 @@ class RecipientController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Verifique os dados informados' });
     }
 
     const { name } = req.body;
@@ -69,7 +69,7 @@ class RecipientController {
     const recipient = await Recipient.findByPk(req.params.id);
 
     if (!recipient) {
-      return res.status(400).json({ error: 'Recipient not found' });
+      return res.status(400).json({ error: 'Destinatário não encontrado' });
     }
 
     if (name && name !== recipient.name) {
@@ -78,7 +78,7 @@ class RecipientController {
       });
 
       if (recipientExists) {
-        return res.status(400).json({ error: 'Recipient already exists' });
+        return res.status(400).json({ error: 'Já existe um destinatário com esse nome' });
       }
     }
 
@@ -143,7 +143,7 @@ class RecipientController {
     });
 
     if (!recipient) {
-      return res.status(400).json({ error: 'Recipient not found' });
+      return res.status(400).json({ error: 'Destinatário não encontrado' });
     }
 
     return res.json(recipient);
