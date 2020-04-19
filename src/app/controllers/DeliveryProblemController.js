@@ -82,7 +82,7 @@ class DeliveryProblemController {
         {
           model: Delivery,
           as: 'delivery',
-          attributes: ['id', 'product', 'canceled_at'],
+          attributes: ['id', 'product', 'canceled_at', 'end_date'],
           include: [
             {
               model: Deliveryman,
@@ -113,7 +113,13 @@ class DeliveryProblemController {
     }
 
     if (deliveryProblem.delivery.canceled_at) {
-      return res.status(401).json({ error: 'Essa encomenda já está cancelada' });
+      return res
+        .status(401)
+        .json({ error: 'Essa encomenda já está cancelada' });
+    }
+
+    if (deliveryProblem.delivery.end_date) {
+      return res.status(401).json({ error: 'Essa encomenda já foi entregue' });
     }
 
     deliveryProblem.delivery.canceled_at = new Date();

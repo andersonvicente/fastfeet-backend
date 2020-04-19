@@ -1,16 +1,18 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
 import Deliveryman from '../models/Deliveryman';
+import Delivery from '../models/Delivery';
 import File from '../models/File';
 
 class DeliverymanController {
   async index(req, res) {
     const { q } = req.query;
 
-    const where = q ? { name: { [Op.iLike]: `%${q}%` } } : null;
+    let where = [{ removed_at: null }];
+    where = q ? [...where, { name: { [Op.iLike]: `%${q}%` } }] : where;
 
     const deliverymen = await Deliveryman.findAll({
-      where: { removed_at: null },
+      where,
       attributes: ['id', 'name', 'email', 'removed_at'],
       include: [
         {
@@ -41,7 +43,9 @@ class DeliverymanController {
     });
 
     if (deliverymanExists) {
-      return res.status(400).json({ error: 'Já existe um entregador com este e-mail' });
+      return res
+        .status(400)
+        .json({ error: 'Já existe um entregador com este e-mail' });
     }
 
     const { id, name, email } = await Deliveryman.create(req.body);
@@ -96,7 +100,9 @@ class DeliverymanController {
       });
 
       if (deliverymanExists) {
-        return res.status(400).json({ error: 'Já existe um outro entregador com este e-mail' });
+        return res
+          .status(400)
+          .json({ error: 'Já existe um outro entregador com este e-mail' });
       }
     }
 
@@ -111,12 +117,24 @@ class DeliverymanController {
   }
 
   async delete(req, res) {
-    const deliveryman = await Deliveryman.findByPk(req.params.id, {
+    const { id } = req.params;
+
+    const deliveryman = await Deliveryman.findByPk(id, {
       attributes: ['id', 'name', 'email', 'removed_at'],
     });
 
     if (deliveryman.removed_at) {
       return res.status(401).json({ error: 'Este entregador já foi excluído' });
+    }
+
+    const deliveryOpen = await Delivery.findOne({
+      where: { deliveryman_id: id, canceled_at: null, end_date: null },
+    });
+
+    if (deliveryOpen) {
+      return res.status(401).json({
+        error: 'Existe uma encomenda em aberto para este entregador',
+      });
     }
 
     deliveryman.removed_at = new Date();

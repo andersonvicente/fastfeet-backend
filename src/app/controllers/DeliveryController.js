@@ -13,7 +13,8 @@ class DeliveryController {
   async index(req, res) {
     const { q } = req.query;
 
-    const where = q ? { product: { [Op.iLike]: `%${q}%` } } : null;
+    let where = [{ removed_at: null }];
+    where = q ? [...where, { name: { [Op.iLike]: `%${q}%` } }] : where;
 
     const deliveries = await Delivery.findAll({
       where,
@@ -157,8 +158,17 @@ class DeliveryController {
   }
 
   async delete(req, res) {
-    const delivery = await Delivery.findByPk(req.params.id, {
-      attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+    const { id } = req.params;
+
+    const delivery = await Delivery.findByPk(id, {
+      attributes: [
+        'id',
+        'product',
+        'canceled_at',
+        'start_date',
+        'end_date',
+        'removed_at',
+      ],
       include: [
         {
           model: Recipient,
@@ -182,23 +192,17 @@ class DeliveryController {
       ],
     });
 
-    if (delivery.canceled_at) {
-      return res.status(401).json({ error: 'Essa encomenda já foi cancelada' });
+    if (delivery.removed_at) {
+      return res.status(401).json({ error: 'Essa encomenda já foi excluída' });
     }
 
-    if (delivery.start_date) {
+    if (delivery.end_date === null && delivery.canceled_at === null) {
       return res.status(401).json({
-        error: 'Essa encomenda já foi retirada pelo entregador',
+        error: 'Essa encomenda ainda está em aberto',
       });
     }
 
-    if (delivery.end_date) {
-      return res
-        .status(401)
-        .json({ error: 'Essa encomenda já foi entregue' });
-    }
-
-    delivery.canceled_at = new Date();
+    delivery.removed_at = new Date();
 
     await delivery.save();
 

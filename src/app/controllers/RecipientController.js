@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
 import Recipient from '../models/Recipient';
+import Delivery from '../models/Delivery';
 
 class RecipientController {
   async store(req, res) {
@@ -23,7 +24,9 @@ class RecipientController {
     });
 
     if (userExists) {
-      return res.status(400).json({ error: 'Já existe um destinatário com esse nome' });
+      return res
+        .status(400)
+        .json({ error: 'Já existe um destinatário com esse nome' });
     }
 
     const {
@@ -78,7 +81,9 @@ class RecipientController {
       });
 
       if (recipientExists) {
-        return res.status(400).json({ error: 'Já existe um destinatário com esse nome' });
+        return res
+          .status(400)
+          .json({ error: 'Já existe um destinatário com esse nome' });
       }
     }
 
@@ -107,7 +112,8 @@ class RecipientController {
   async index(req, res) {
     const { q } = req.query;
 
-    const where = q ? { name: { [Op.iLike]: `%${q}%` } } : null;
+    let where = [{ removed_at: null }];
+    where = q ? [...where, { name: { [Op.iLike]: `%${q}%` } }] : where;
 
     const recipients = await Recipient.findAll({
       where,
@@ -145,6 +151,40 @@ class RecipientController {
     if (!recipient) {
       return res.status(400).json({ error: 'Destinatário não encontrado' });
     }
+
+    return res.json(recipient);
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const recipient = await Recipient.findByPk(id, {
+      attributes: ['id', 'removed_at'],
+    });
+
+    if (!recipient) {
+      return res.status(401).json({ error: 'Destinatário não encontrado' });
+    }
+
+    if (recipient.removed_at) {
+      return res
+        .status(401)
+        .json({ error: 'Este destinatário já foi excluído' });
+    }
+
+    const deliveryOpen = await Delivery.findOne({
+      where: { recipient_id: id, canceled_at: null, end_date: null },
+    });
+
+    if (deliveryOpen) {
+      return res.status(401).json({
+        error: 'Existe uma encomenda em aberto para este destinatário',
+      });
+    }
+
+    recipient.removed_at = new Date();
+
+    await recipient.save();
 
     return res.json(recipient);
   }
